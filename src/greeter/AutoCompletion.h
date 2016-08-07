@@ -17,8 +17,9 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_USERMODEL_H
-#define SDDM_USERMODEL_H
+#ifndef AUTOCOMPLETION_H
+#define AUTOCOMPLETION_H
+
 
 #include <QAbstractListModel>
 
@@ -28,44 +29,16 @@
 #define DEL '\b'
 
 namespace SDDM {
-    class UserModelPrivate;
-
-    class UserModel : public QAbstractListModel {
+    class AutoCompletion : public QAbstractListModel {
         Q_OBJECT
-        Q_DISABLE_COPY(UserModel)
-
-        Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
-        Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
-        Q_PROPERTY(int count READ rowCount CONSTANT)
-        Q_PROPERTY(int disableAvatarsThreshold READ disableAvatarsThreshold CONSTANT)
+        Q_DISABLE_COPY(AutoCompletion)
 
         Q_PROPERTY(int initAutoCompletion READ initAutoCompletion CONSTANT)
         Q_PROPERTY(QString tail READ tail WRITE setTail)
         Q_PROPERTY(QString head READ head WRITE setHead)
 
+
     public:
-
-        enum UserRoles {
-            NameRole = Qt::UserRole + 1,
-            RealNameRole,
-            HomeDirRole,
-            IconRole,
-            NeedsPasswordRole
-        };
-
-        UserModel(QObject *parent = 0);
-        ~UserModel();
-
-        QHash<int, QByteArray> roleNames() const override;
-
-        const int lastIndex() const;
-        QString lastUser() const;
-
-        int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-        QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
-        int disableAvatarsThreshold() const;
-
        typedef struct letter {
             char character;
             int sign;
@@ -87,18 +60,15 @@ namespace SDDM {
         letter*	addLetterToTrie(char, int);
 
    private:
-        UserModelPrivate *d { nullptr };
-
         QString privateHead;
         QString privateTail;
         char c='\0';
         int lockFlag=0;
         letter *root;
-        char buffer[BUF_SIZE];
+        char buffer[BUF_SIZE]; /*bufferize input character*/
         char* bufferEnd;
-        letter* stack[BUF_SIZE];
+        letter* stack[BUF_SIZE]; /*memorize current autocompletion characters*/
         letter** stackPointer;
     };
 }
-
-#endif // SDDM_USERMODEL_H
+#endif // AUTOCOMPLETION_H
