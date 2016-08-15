@@ -34,6 +34,7 @@ namespace SDDM {
     class SessionModel;
     class ScreenModel;
     class UserModel;
+    class AutoCompletion;
     class GreeterProxy;
     class KeyboardModel;
 
@@ -63,6 +64,7 @@ namespace SDDM {
         ThemeConfig *m_themeConfig { nullptr };
         SessionModel *m_sessionModel { nullptr };
         UserModel *m_userModel { nullptr };
+        AutoCompletion *m_autoCompletion { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
 

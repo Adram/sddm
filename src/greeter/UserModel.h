@@ -24,27 +24,17 @@
 
 #include <QHash>
 
-#define BUF_SIZE 200
-#define DEL '\b'
-
 namespace SDDM {
     class UserModelPrivate;
 
     class UserModel : public QAbstractListModel {
         Q_OBJECT
         Q_DISABLE_COPY(UserModel)
-
         Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
         Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
         Q_PROPERTY(int count READ rowCount CONSTANT)
         Q_PROPERTY(int disableAvatarsThreshold READ disableAvatarsThreshold CONSTANT)
-
-        Q_PROPERTY(int initAutoCompletion READ initAutoCompletion CONSTANT)
-        Q_PROPERTY(QString tail READ tail WRITE setTail)
-        Q_PROPERTY(QString head READ head WRITE setHead)
-
     public:
-
         enum UserRoles {
             NameRole = Qt::UserRole + 1,
             RealNameRole,
@@ -65,39 +55,8 @@ namespace SDDM {
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
         int disableAvatarsThreshold() const;
-
-       typedef struct letter {
-            char character;
-            int sign;
-            letter* dx;
-            letter* down;
-        } letter;
-
-        QString tail();
-        void setTail(QString);
-        QString head();
-        void setHead(QString);
-
-        int initAutoCompletion();
-        void makeTrie(letter**);
-        void addStringToTrie(letter**,const char*,int);
-        letter* findCharacter(letter*,char);
-        void completion(letter*);
-        letter* readWord(letter *root,const char *word);
-        letter*	addLetterToTrie(char, int);
-
-   private:
+    private:
         UserModelPrivate *d { nullptr };
-
-        QString privateHead;
-        QString privateTail;
-        char c='\0';
-        int lockFlag=0;
-        letter *root;
-        char buffer[BUF_SIZE];
-        char* bufferEnd;
-        letter* stack[BUF_SIZE];
-        letter** stackPointer;
     };
 }
 

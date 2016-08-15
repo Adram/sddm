@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2016 Marco Clocchiatti <ziapannocchia@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -20,15 +21,14 @@
 #ifndef AUTOCOMPLETION_H
 #define AUTOCOMPLETION_H
 
-
 #include <QAbstractListModel>
-
-#include <QHash>
 
 #define BUF_SIZE 200
 #define DEL '\b'
 
 namespace SDDM {
+    class AutoCompletionPrivate;
+
     class AutoCompletion : public QAbstractListModel {
         Q_OBJECT
         Q_DISABLE_COPY(AutoCompletion)
@@ -37,19 +37,30 @@ namespace SDDM {
         Q_PROPERTY(QString tail READ tail WRITE setTail)
         Q_PROPERTY(QString head READ head WRITE setHead)
 
-
     public:
-       typedef struct letter {
-            char character;
-            int sign;
-            letter* dx;
-            letter* down;
-        } letter;
+        enum UserRoles {
+            NameRole = Qt::UserRole + 1
+        };
+        AutoCompletion(QObject *parent = 0);
+        ~AutoCompletion();
 
-        QString tail();
-        void setTail(QString);
+        QHash<int, QByteArray> roleNames() const override;
+
+        int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+        QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+        typedef struct letter {
+             char character;
+             int sign;
+             letter* dx;
+             letter* down;
+         } letter;
+
         QString head();
         void setHead(QString);
+        QString tail();
+        void setTail(QString);
 
         int initAutoCompletion();
         void makeTrie(letter**);
@@ -59,16 +70,19 @@ namespace SDDM {
         letter* readWord(letter *root,const char *word);
         letter*	addLetterToTrie(char, int);
 
-   private:
+    private:
+        AutoCompletionPrivate *d { nullptr };
+
         QString privateHead;
         QString privateTail;
         char c='\0';
         int lockFlag=0;
         letter *root;
-        char buffer[BUF_SIZE]; /*bufferize input character*/
+        char buffer[BUF_SIZE];
         char* bufferEnd;
-        letter* stack[BUF_SIZE]; /*memorize current autocompletion characters*/
+        letter* stack[BUF_SIZE];
         letter** stackPointer;
     };
 }
+
 #endif // AUTOCOMPLETION_H

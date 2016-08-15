@@ -27,6 +27,7 @@
 #include "ThemeConfig.h"
 #include "ThemeMetadata.h"
 #include "UserModel.h"
+#include "AutoCompletion.h"
 #include "KeyboardModel.h"
 
 #include "MessageHandler.h"
@@ -111,6 +112,7 @@ namespace SDDM {
 
         m_sessionModel = new SessionModel();
         m_userModel = new UserModel();
+        m_autoCompletion = new AutoCompletion();
         m_proxy = new GreeterProxy(socket);
         m_keyboard = new KeyboardModel();
 
@@ -194,6 +196,7 @@ namespace SDDM {
         view->rootContext()->setContextProperty(QStringLiteral("sessionModel"), m_sessionModel);
         view->rootContext()->setContextProperty(QStringLiteral("screenModel"), screenModel);
         view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
+        view->rootContext()->setContextProperty(QStringLiteral("autoCompletion"), m_autoCompletion);
         view->rootContext()->setContextProperty(QStringLiteral("config"), *m_themeConfig);
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);

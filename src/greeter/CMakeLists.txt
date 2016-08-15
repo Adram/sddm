@@ -15,6 +15,7 @@ set(GREETER_SOURCES
     ThemeConfig.cpp
     ThemeMetadata.cpp
     UserModel.cpp
+    AutoCompletion.cpp
     XcbKeyboardBackend.cpp
 )
 

@@ -28,7 +28,7 @@ FocusScope {
         id: container
         width: 150; height: 30
 
-        property int auC: userModel.initAutoCompletion;
+        property int auC: autoCompletion.initAutoCompletion;
         property color color: "white"
         property color borderColor: "#ababab"
         property color focusColor: "#266294"
@@ -100,10 +100,10 @@ FocusScope {
             this.inputText += event.text
             this.sendSearchSeed(event.text)
         }
-        userModel.head=event.text
-        userModel.tail=""
-        head = userModel.head
-        tail = userModel.tail
+        autoCompletion.head=event.text
+        autoCompletion.tail=""
+        head = autoCompletion.head
+        tail = autoCompletion.tail
         event.accepted
     }
 
