@@ -53,7 +53,7 @@ namespace SDDM {
         typedef struct letter {
              char character;
              int sign;
-             letter* dx;
+             letter* right;
              letter* down;
          } letter;
 
@@ -73,13 +73,13 @@ namespace SDDM {
     private:
         AutoCompletionPrivate *d { nullptr };
 
-        QString privateHead;
-        QString privateTail;
+        char privateHead[BUF_SIZE];
+        char* privateHeadEnd=privateHead;
+        char privateTail[BUF_SIZE];
+        char* privateTailEnd=privateTail;
         char c='\0';
         int lockFlag=0;
         letter *root;
-        char buffer[BUF_SIZE];
-        char* bufferEnd;
         letter* stack[BUF_SIZE];
         letter** stackPointer;
     };
