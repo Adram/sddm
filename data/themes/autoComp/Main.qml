@@ -56,6 +56,99 @@ Rectangle {
         }
     }
 
+        Component {
+            id: userDelegate
+
+            PictureBox {
+                //anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                //name: (model.realName === "") ? model.name : model.realName
+                name: model.name
+                icon: model.icon
+                showPassword: model.needsPassword
+
+                focus: (listView.currentIndex === index) ? true : false
+                state: (listView.currentIndex === index) ? "active" : ""
+
+                onLogin: sddm.login(model.name, password, sessionIndex);
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        listView.currentIndex = index;
+                        listView.focus = true;
+                    }
+                }
+            }
+        }
+
+    Rectangle {
+
+        width: parent.width / 2; height: parent.height
+
+        color: "#22000000"
+
+        clip: true
+
+
+
+        Item {
+            id: usersContainer
+            width: 350; height: parent.height
+            //anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            ImageButton {
+                id: prevUser
+                //anchors.left: parent.left
+                anchors.top: parent.top
+                //anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.margins: 10
+                source: "images/angle-top.png"
+                onClicked: listView.decrementCurrentIndex()
+
+                KeyNavigation.backtab: btnShutdown; KeyNavigation.tab: listView
+            }
+
+            ListView {
+
+                id: listView
+                //height: parent.height
+                width:parent.width
+                //anchors.left: prevUser.right; anchors.right: nextUser.left
+                anchors.top: prevUser.bottom; anchors.bottom: nextUser.top
+                //anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.margins: 10
+
+                clip: true
+                focus: true
+                spacing: 5
+
+                model: autoCompletion
+                delegate: userDelegate
+                //orientation: ListView.Horizontal
+                orientation: ListView.Vertical
+                currentIndex: userModel.lastIndex
+
+                KeyNavigation.backtab: prevUser; KeyNavigation.tab: nextUser
+            }
+
+            ImageButton {
+                id: nextUser
+                //anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                //anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.margins: 10
+                source: "images/angle-bottom.png"
+                onClicked: listView.incrementCurrentIndex()
+                KeyNavigation.backtab: listView; KeyNavigation.tab: session
+            }
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "transparent"
@@ -236,7 +329,7 @@ Rectangle {
         }
     }
 
-    Rectangle {
+/*    Rectangle {
         id: actionBar
         anchors.top: parent.top;
         anchors.horizontalCenter: parent.horizontalCenter
@@ -293,6 +386,7 @@ Rectangle {
             }
         }
     }
+*/
 
     Component.onCompleted: {
         if (user_entry.text === "")

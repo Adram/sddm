@@ -29,26 +29,14 @@
 #include <QTextStream>
 #include <QStringList>
 
-#include <memory>
-#include <pwd.h>
-
 namespace SDDM {
-    class User {
-    public:
-        QString name;
-    };
-
-    typedef std::shared_ptr<User> UserPtr;
 
     class AutoCompletionPrivate {
     public:
-        int lastIndex { 0 };
         QList<UserPtr> users;
     };
 
-    AutoCompletion::AutoCompletion(QObject *parent) : QAbstractListModel(parent), d(new AutoCompletionPrivate()) {
-        //UserPtr user { new User() };
-    }
+    AutoCompletion::AutoCompletion(QObject *parent) : QAbstractListModel(parent), d(new AutoCompletionPrivate()) {}
 
     AutoCompletion::~AutoCompletion() {
         delete d;
@@ -82,11 +70,13 @@ namespace SDDM {
     int AutoCompletion::initAutoCompletion() {
         makeTrie(&root);
 
-        struct passwd *current_pw;
+        const QString facesDir = mainConfig.Theme.FacesDir.get();
+        const QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
+
         while ((current_pw = getpwent()) != nullptr) {
             // skip entries with uids smaller than minimum uid
-            if (int(current_pw->pw_uid) < mainConfig.Users.MinimumUid.get())
-                continue;
+            //if (int(current_pw->pw_uid) < mainConfig.Users.MinimumUid.get())
+                //continue;
 
             // skip entries with uids greater than maximum uid
             if (int(current_pw->pw_uid) > mainConfig.Users.MaximumUid.get())
@@ -98,11 +88,11 @@ namespace SDDM {
             // skip entries with shells in the hide shells list
             if (mainConfig.Users.HideShells.get().contains(QString::fromLocal8Bit(current_pw->pw_shell)))
                 continue;
-           addStringToTrie(&root,current_pw->pw_name,0);
-       }
-       stackPointer=stack;
-       *(stackPointer++)=root;
-       return 0;
+           addStringToTrie(&root,current_pw->pw_name);
+        }
+        *(stackPointer++)=root;
+        dfs((*(stackPointer-1))->down);
+        return 0;
     }
 
     QString AutoCompletion::tail() {return QString::fromStdString(privateTail);}
@@ -156,50 +146,48 @@ namespace SDDM {
         }
     }
 
-    AutoCompletion::letter* AutoCompletion::addLetterToTrie(char character, int sign) {
-        letter* nodo = new letter;
+    AutoCompletion::letter* AutoCompletion::addLetterToTrie(char character) {
+        letter* pt = new letter;
 
-        nodo->character=character;
-        nodo->right=NULL;
-        nodo->down=NULL;
-        nodo->sign=sign;
-
-        return nodo;
+        pt->character=character;
+        return pt;
     }
 
-    AutoCompletion::letter * AutoCompletion::readWord(letter *currentLeaf,const char *word) {
-        while(1) {
-           letter *nextLetter=NULL;
-           letter *pt;
+    AutoCompletion::letter* AutoCompletion::addLetterToTrie(char character, const int) {
+        letter* pt = new letter;
 
-           for (pt=currentLeaf;pt != NULL;pt=pt->right) {
-               if(pt->character==*word) {
-                   nextLetter=pt;
-                   break;
-             }
-           }
+        // create user
+        UserPtr user { new User()};pt->user = user;
+        pt->user->name = QString::fromLocal8Bit(current_pw->pw_name);
+        pt->user->realName = QString::fromLocal8Bit(current_pw->pw_gecos).split(QLatin1Char(',')).first();
+        pt->user->homeDir = QString::fromLocal8Bit(current_pw->pw_dir);
+        pt->user->uid = int(current_pw->pw_uid);
+        pt->user->gid = int(current_pw->pw_gid);
+        // if shadow is used pw_passwd will be 'x' nevertheless, so this
+        // will always be true
+        pt->user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
 
-           if (nextLetter==NULL) return NULL;
-           if (*word=='\0') return pt;
+        // search for face icon
+        //(pt->user)->icon = defaultFace;
+        d->users << pt->user;
 
-           currentLeaf=nextLetter->down;
-           word++;
-        }
+        pt->character=character;
+        return pt;
     }
 
-    void AutoCompletion::addStringToTrie(letter **root,const char *word, int sign) {
+    void AutoCompletion::addStringToTrie(letter **root,const char *word) {
         if (NULL == *root) {qWarning("empty Trie");return;}
         letter* stringCursor=(*root)->down;
         if (stringCursor==NULL) {
             for(stringCursor=*root;*word;stringCursor=stringCursor->down) {
-                stringCursor->down=addLetterToTrie(*word,sign);
+                stringCursor->down=addLetterToTrie(*word);
                 word++;
             }
-            stringCursor->down=addLetterToTrie('\0',sign);
+            stringCursor->down=addLetterToTrie('\0',0);
             return;
         }
 
-        if(readWord(stringCursor, word)) qWarning("duplicate word; %s",word);
+        //if(readWord(stringCursor, word)) qWarning("duplicate word; %s",word);
 
         while(*word != '\0') {
             if (*word == stringCursor->character) {
@@ -213,37 +201,93 @@ namespace SDDM {
         while(stringCursor->right) {
             if(*word == stringCursor->right->character) {
                 word++;
-                addStringToTrie(&(stringCursor->right),word,sign);
+                addStringToTrie(&(stringCursor->right),word);
                 return;
             }
             stringCursor=stringCursor->right;
         }
 
-        stringCursor->right=addLetterToTrie(*word,sign);
+        stringCursor->right=addLetterToTrie(*word);
         if(!(*word)) return;
         word++;
 
         for(stringCursor=stringCursor->right; *word; stringCursor=stringCursor->down) {
-            stringCursor->down=addLetterToTrie(*word,sign);
+            stringCursor->down=addLetterToTrie(*word);
             word++;
         }
 
-        stringCursor->down=addLetterToTrie('\0',sign);
+        stringCursor->down=addLetterToTrie('\0',0);
         return;
     }
 
     void AutoCompletion::makeTrie(letter** root) {
-        *root = addLetterToTrie('\0',0);
+        *root = addLetterToTrie('\0');
     }
 
     void AutoCompletion::completion(letter* pt) {
         *privateTail='\0';
         privateTailEnd=privateTail;
+        int rows = rowCount(QModelIndex());
+        qWarning() << "rows before = " << rows << endl;
+        d->users.clear();
+        beginRemoveRows(QModelIndex(),0,rows-1);
+        removeRows(0,rows-1,QModelIndex());
+        endRemoveRows();
+        dfs(pt->down);
+        rows = rowCount(QModelIndex());
+        qWarning() << "rows post  = " << rows << endl;
+        beginInsertRows(QModelIndex(),0,rows-1);
+        insertRows(0,rows-1,QModelIndex());
+        endInsertRows();
         while (pt->down->character!='\0') {
             *privateTailEnd++=pt->down->character;
             *privateTailEnd='\0';
             pt=pt->down;
         }
     }
+
+    void AutoCompletion::dfs(letter* pt) {
+        letter* downPt;
+        do {
+            if (pt->character!='\0') {
+              *privateDfsEnd++=pt->character;
+              *privateDfsEnd='\0';
+            } else {
+                //qWarning() << "dfs" << pt->user->name;
+                d->users << pt->user;
+                *privateDfsEnd='\0';
+            }
+          downPt=pt->down;
+          if (downPt != NULL) {
+              AutoCompletion::dfs(downPt);
+          }
+          if (pt->mark!=1 && pt->character!='\0') {
+              *privateDfsEnd--;
+          }
+          pt=pt->right;
+        } while (pt != NULL);
+        return;
+    }
 }
+
+/* usefull to avoid duplicates:
+    AutoCompletion::letter * AutoCompletion::readWord(letter *currentLeaf,const char *word) {
+        while(1) {
+           letter *nextLetter=NULL;
+           letter *pt;
+
+           for (pt=currentLeaf;pt != NULL;pt=pt->right) {
+               if(pt->character==*word) {
+                   nextLetter=pt;
+                   break;
+             }
+           }
+           if (nextLetter==NULL) return NULL;
+           if (*word=='\0') return pt;
+
+           currentLeaf=nextLetter->down;
+           word++;
+        }
+    }
+*/
 

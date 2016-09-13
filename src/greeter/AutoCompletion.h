@@ -23,11 +23,26 @@
 
 #include <QAbstractListModel>
 
+#include <memory>
+#include <pwd.h>
+
 #define BUF_SIZE 200
 #define DEL '\b'
 
 namespace SDDM {
     class AutoCompletionPrivate;
+    class User {
+    public:
+        QString name {};
+        QString realName;
+        QString homeDir;
+        QString icon;
+        bool needsPassword { false };
+        int uid { 0 };
+        int gid { 0 };
+};
+
+    typedef std::shared_ptr<User> UserPtr;
 
     class AutoCompletion : public QAbstractListModel {
         Q_OBJECT
@@ -52,9 +67,10 @@ namespace SDDM {
 
         typedef struct letter {
              char character;
-             int sign;
-             letter* right;
-             letter* down;
+             int mark { 0 };
+             letter* right { NULL };
+             letter* down { NULL };
+             UserPtr user { nullptr };
          } letter;
 
         QString head();
@@ -64,24 +80,31 @@ namespace SDDM {
 
         int initAutoCompletion();
         void makeTrie(letter**);
-        void addStringToTrie(letter**,const char*,int);
         letter* findCharacter(letter*,char);
+        void addStringToTrie(letter**,const char*);
+        letter*	addLetterToTrie(char);
+        letter*	addLetterToTrie(char, const int);
         void completion(letter*);
-        letter* readWord(letter *root,const char *word);
-        letter*	addLetterToTrie(char, int);
+        void dfs(letter*);
+        // usefull to avoid duplicate:
+        //letter* readWord(letter *root,const char *word);
 
     private:
         AutoCompletionPrivate *d { nullptr };
+        struct passwd *current_pw;
 
+        UserPtr newUser;
         char privateHead[BUF_SIZE];
-        char* privateHeadEnd=privateHead;
+        char* privateHeadEnd {privateHead};
         char privateTail[BUF_SIZE];
-        char* privateTailEnd=privateTail;
-        char c='\0';
-        int lockFlag=0;
+        char* privateTailEnd {privateTail};
+        char privateDfs[BUF_SIZE];
+        char* privateDfsEnd {privateDfs};
+        char c {'\0'};
+        int lockFlag {0};
         letter *root;
         letter* stack[BUF_SIZE];
-        letter** stackPointer;
+        letter** stackPointer {stack};
     };
 }
 
