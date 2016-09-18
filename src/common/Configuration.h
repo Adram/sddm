@@ -54,6 +54,11 @@ namespace SDDM {
             Entry(DisableAvatarsThreshold,int,      7,                                          _S("Number of users to use as threshold\n"
                                                                                                    "above which avatars are disabled\n"
                                                                                                    "unless explicitly enabled with EnableAvatars"));
+            Entry(userModelClass,         QString,  _S("userModel"),                             _S("Allow to choose UserModel class context to search available usernames\n"
+                                                                                                    "possible values are\n"
+                                                                                                    " - userModel\n"
+                                                                                                    " - autoCompletion\n"
+                                                                                                    "Default is userModel"));
         );
 
         // TODO: Not absolutely sure if everything belongs here. Xsessions, VT and probably some more seem universal

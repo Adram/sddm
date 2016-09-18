@@ -111,8 +111,15 @@ namespace SDDM {
         // create models
 
         m_sessionModel = new SessionModel();
-        m_userModel = new UserModel();
-        m_autoCompletion = new AutoCompletion();
+        userModelContext = mainConfig.Theme.userModelClass.get();
+        if (QString::compare(userModelContext,QStringLiteral("userModel"), Qt::CaseSensitive)==0)
+            m_userModel = new UserModel();
+        else if (QString::compare(userModelContext,QStringLiteral("autoCompletion"), Qt::CaseSensitive)==0)
+            m_autoCompletion = new AutoCompletion();
+        else {
+            m_userModel = new UserModel();
+            qWarning()<<"(WW) invalid userModelClass value checked: please adjust your sddm.conf";
+        }
         m_proxy = new GreeterProxy(socket);
         m_keyboard = new KeyboardModel();
 
@@ -195,8 +202,12 @@ namespace SDDM {
         // set context properties
         view->rootContext()->setContextProperty(QStringLiteral("sessionModel"), m_sessionModel);
         view->rootContext()->setContextProperty(QStringLiteral("screenModel"), screenModel);
-        view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
-        view->rootContext()->setContextProperty(QStringLiteral("autoCompletion"), m_autoCompletion);
+        if (QString::compare(userModelContext,QStringLiteral("userModel"), Qt::CaseSensitive)==0)
+            view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
+        else if (QString::compare(userModelContext,QStringLiteral("autoCompletion"), Qt::CaseSensitive)==0)
+            view->rootContext()->setContextProperty(QStringLiteral("usermodel"), m_autoCompletion);
+        else
+            view->rootContext()->setContextProperty(QStringLiteral("usermodel"), m_userModel);
         view->rootContext()->setContextProperty(QStringLiteral("config"), *m_themeConfig);
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);

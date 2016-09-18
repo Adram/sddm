@@ -22,6 +22,7 @@
 #define AUTOCOMPLETION_H
 
 #include <QAbstractListModel>
+#include <QRegularExpression>
 
 #include <memory>
 #include <pwd.h>

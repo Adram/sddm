@@ -73,7 +73,14 @@ OPTIONS
 	display as their avatars. This can be slow on some file systems.
 	When disabled, all avatars will be default. Themes may choose to hide
 	them altogether.
-	Default value is true.
+        Default value is true.
+
+`userModelClass=`
+        Allow to choose UserModel class context to search available usernames.
+        Possible values are:
+        - default
+        - autoCompletion
+        Default is autoCompletion
 
 [X11] section:
 

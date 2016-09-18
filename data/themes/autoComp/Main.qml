@@ -126,7 +126,7 @@ Rectangle {
                 focus: true
                 spacing: 5
 
-                model: autoCompletion
+                model: usermodel
                 delegate: userDelegate
                 //orientation: ListView.Horizontal
                 orientation: ListView.Vertical

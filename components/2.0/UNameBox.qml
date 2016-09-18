@@ -28,7 +28,7 @@ FocusScope {
         id: container
         width: 150; height: 30
 
-        property int auC: autoCompletion.initAutoCompletion;
+        property int auC: usermodel.initAutoCompletion;
         property color color: "white"
         property color borderColor: "#ababab"
         property color focusColor: "#266294"
@@ -42,8 +42,6 @@ FocusScope {
         property string head
         property string tail
         property string username: head+tail
-
-        signal sendSearchSeed(string testo)
 
     Rectangle {
         id: main
@@ -87,23 +85,20 @@ FocusScope {
         {
             this.focus= false
             event.editingFinished()
-            this.sendSearchSeed(event.text)
         }
           else if (event.key === Qt.Key_Backspace)
         {
             this.inputText=this.inputText.slice(0,-1)
-            this.sendSearchSeed(event.text)
         }
           else if (event.text==="");
           else
         {
             this.inputText += event.text
-            this.sendSearchSeed(event.text)
         }
-        autoCompletion.head=event.text
-        autoCompletion.tail=""
-        head = autoCompletion.head
-        tail = autoCompletion.tail
+        usermodel.head=event.text
+        usermodel.tail=""
+        head = usermodel.head
+        tail = usermodel.tail
         event.accepted
     }
 

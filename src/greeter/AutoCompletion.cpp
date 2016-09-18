@@ -28,6 +28,7 @@
 #include <QStringBuilder>
 #include <QTextStream>
 #include <QStringList>
+#include <QRegularExpression>
 
 namespace SDDM {
 

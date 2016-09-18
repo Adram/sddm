@@ -68,6 +68,7 @@ namespace SDDM {
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
 
+        QString userModelContext;
         void activatePrimary();
     };
 }
