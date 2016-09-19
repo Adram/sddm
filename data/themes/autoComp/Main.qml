@@ -1,5 +1,4 @@
 /***************************************************************************
-* Copyright (c) 2013 Reza Fatahilah Shah <rshah0385@kireihana.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * Permission is hereby granted, free of charge, to any person
@@ -25,10 +24,9 @@
 
 import QtQuick 2.0
 import SddmComponents 2.0
-//import QtQuick ${COMPONENTS_VERSION}
-//import SddmComponents ${COMPONENTS_VERSION}
 
 Rectangle {
+    id: container
     width: 640
     height: 480
 
@@ -39,9 +37,15 @@ Rectangle {
 
     Connections {
         target: sddm
+
         onLoginSucceeded: {
+            errorMessage.color = "steelblue"
+            errorMessage.text = textConstants.loginSucceeded
         }
+
         onLoginFailed: {
+            errorMessage.color = "red"
+            errorMessage.text = textConstants.loginFailed
         }
     }
 
@@ -56,342 +60,231 @@ Rectangle {
         }
     }
 
-        Component {
-            id: userDelegate
-
-            PictureBox {
-                //anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                //name: (model.realName === "") ? model.name : model.realName
-                name: model.name
-                icon: model.icon
-                showPassword: model.needsPassword
-
-                focus: (listView.currentIndex === index) ? true : false
-                state: (listView.currentIndex === index) ? "active" : ""
-
-                onLogin: sddm.login(model.name, password, sessionIndex);
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        listView.currentIndex = index;
-                        listView.focus = true;
-                    }
-                }
-            }
-        }
-
-    Rectangle {
-
-        width: parent.width / 2; height: parent.height
-
-        color: "#22000000"
-
-        clip: true
-
-
-
-        Item {
-            id: usersContainer
-            width: 350; height: parent.height
-            //anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            ImageButton {
-                id: prevUser
-                //anchors.left: parent.left
-                anchors.top: parent.top
-                //anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.margins: 10
-                source: "images/angle-top.png"
-                onClicked: listView.decrementCurrentIndex()
-
-                KeyNavigation.backtab: btnShutdown; KeyNavigation.tab: listView
-            }
-
-            ListView {
-
-                id: listView
-                //height: parent.height
-                width:parent.width
-                //anchors.left: prevUser.right; anchors.right: nextUser.left
-                anchors.top: prevUser.bottom; anchors.bottom: nextUser.top
-                //anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.margins: 10
-
-                clip: true
-                focus: true
-                spacing: 5
-
-                model: usermodel
-                delegate: userDelegate
-                //orientation: ListView.Horizontal
-                orientation: ListView.Vertical
-                currentIndex: userModel.lastIndex
-
-                KeyNavigation.backtab: prevUser; KeyNavigation.tab: nextUser
-            }
-
-            ImageButton {
-                id: nextUser
-                //anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                //anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.margins: 10
-                source: "images/angle-bottom.png"
-                onClicked: listView.incrementCurrentIndex()
-                KeyNavigation.backtab: listView; KeyNavigation.tab: session
-            }
-        }
-    }
-
     Rectangle {
         anchors.fill: parent
         color: "transparent"
         //visible: primaryScreen
 
-        Rectangle {
-            width: 416; height: 262
-            color: "#00000000"
+        Clock {
+            id: clock
+            anchors.margins: 5
+            anchors.top: parent.top; anchors.right: parent.right
 
+            color: "white"
+            timeFont.family: "Oxygen"
+        }
+
+        Image {
+            id: rectangle
             anchors.centerIn: parent
+            width: Math.max(320, mainColumn.implicitWidth + 50)
+            height: Math.max(320, mainColumn.implicitHeight + 50)
 
-            Image {
-                anchors.fill: parent
-                source: "images/rectangle.png"
-            }
+            source: "rectangle.png"
 
-            Image {
-                anchors.fill: parent
-                source: "images/rectangle_overlay.png"
-                opacity: 0.1
-            }
+            Column {
+                id: mainColumn
+                anchors.centerIn: parent
 
-            Item {
-                anchors.margins: 20
-                anchors.fill: parent
-
+                spacing: 12
                 Text {
-                    height: 50
-                    anchors.top: parent.top
-                    anchors.left: parent.left; anchors.right: parent.right
-
-                    color: "#0b678c"
-                    opacity: 0.75
-
-                    text: sddm.hostName
-
-                    font.bold: true
-                    font.pixelSize: 18
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: "black"
+                    verticalAlignment: Text.AlignVCenter
+                    height: text.implicitHeight
+                    width: parent.width
+                    //                    text: textConstants.welcomeText.arg(sddm.hostName)
+                     text: "Ciao Marco!!"
+                    wrapMode: Text.WordWrap
+                    font.pixelSize: 24
+                    elide: Text.ElideRight
+                    horizontalAlignment: Text.AlignHCenter
                 }
 
                 Column {
-                    anchors.centerIn: parent
+                    width: parent.width
+                    //                    height: Math.max(320, mainColumn.implicitHeight + 350)
+                    height: 220   // , mainColumn.implicitHeight + 350)
+                    spacing: 4
 
-                    Row {
-                        Image { source: "images/user_icon.png" }
-                        UNameBox {
-                            id: user_entry
-                            //echoMode: noecho
-                        }
+
+                    //SquareButton {
+                    TextAutoBox {
+                        id: squareButton
+                        width: parent.width
+                        height: 200
+
+                        KeyNavigation.backtab: rebootButton; KeyNavigation.tab: password
+
                     }
 
+//                    Text {
+//                        id: lblName
+//                        width: parent.width
+//                        text: textConstants.userName
+//                        font.bold: true
+//                        font.pixelSize: 12
+//                    }
 
-/*
-                    Row {
-                        Image { source: "images/user_icon.png" }
-                        TextBox {
-                            id: user_entry2
+//                    TextBox {
+//                        id: name
+//                        width: parent.width; height: 30
+//                        text: userModel.lastUser
+//                        font.pixelSize: 14
+//
+//                        KeyNavigation.backtab: rebootButton; KeyNavigation.tab: password
+//
+//                        Keys.onPressed: {
+//                            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+//                                sddm.login(squareButton.textUserValue, password.text, session.index)
+//                                event.accepted = true
+//                            }
+//                        }
+//                    }
+                }
 
-                            width: 150; height: 30
-                            anchors.verticalCenter: parent.verticalCenter;
-
-                            font.pixelSize: 14
-														text: user_entry.username
-                            KeyNavigation.backtab: layoutBox; KeyNavigation.tab: pw_entry
-                        }
+                Column {
+                    width: parent.width
+                    spacing : 4
+                    Text {
+                        id: lblPassword
+                        width: parent.width
+                        text: textConstants.password
+                        font.bold: true
+                        font.pixelSize: 12
                     }
-*/
 
-                    Row {
+                    PasswordBox {
+                        id: password
+                        width: parent.width; height: 30
+                        font.pixelSize: 14
 
-                        Image { source: "images/lock.png" }
+                        KeyNavigation.backtab: squareButton; KeyNavigation.tab: session
 
-                        PasswordBox {
-                            id: pw_entry
-                            width: 150; height: 30
-                            anchors.verticalCenter: parent.verticalCenter;
-
-                            tooltipBG: "CornflowerBlue"
-                            echoMode: TextInput.NoEcho
-                            font.pixelSize: 14
-
-                            KeyNavigation.backtab: user_entry; KeyNavigation.tab: login_button
-
-                            Keys.onPressed: {
-                                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                    sddm.login(user_entry.username, pw_entry.text, menu_session.index)
-                                    event.accepted = true
-                                }
+                        Keys.onPressed: {
+                            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                sddm.login(squareButton.textUserValue, password.text, session.index)
+                                event.accepted = true
                             }
                         }
                     }
                 }
 
-                ImageButton {
-                    id: login_button
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.margins: 20
+                Row {
+                    spacing: 4
+                    width: parent.width / 2
+                    z: 100
 
-                    source: "images/login_normal.png"
-
-                    onClicked: sddm.login(user_entry.username, pw_entry.text, menu_session.index)
-
-                    KeyNavigation.backtab: pw_entry; KeyNavigation.tab: session_button
-                }
-
-                Item {
-                    height: 20
-                    anchors.bottom: parent.bottom
-                    anchors.left: parent.left; anchors.right: parent.right
-
-                    Row {
-                        id: buttonRow
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
-
-                        spacing: 8
-
-                        ImageButton {
-                            id: system_button
-                            source: "images/system_shutdown.png"
-                            onClicked: sddm.powerOff()
-
-                            KeyNavigation.backtab: session_button; KeyNavigation.tab: reboot_button
-                        }
-
-                        ImageButton {
-                            id: reboot_button
-                            source: "images/system_reboot.png"
-                            onClicked: sddm.reboot()
-
-                            KeyNavigation.backtab: system_button; KeyNavigation.tab: suspend_button
-                        }
-
-                        ImageButton {
-                            id: suspend_button
-                            source: "images/system_suspend.png"
-                            visible: sddm.canSuspend
-                            onClicked: sddm.suspend()
-
-                            KeyNavigation.backtab: reboot_button; KeyNavigation.tab: hibernate_button
-                        }
-
-                        ImageButton {
-                            id: hibernate_button
-                            source: "images/system_hibernate.png"
-                            visible: sddm.canHibernate
-                            onClicked: sddm.hibernate()
-
-                            KeyNavigation.backtab: suspend_button; KeyNavigation.tab: session
-                        }
-                    }
-
-                    Text {
-                        id: time_label
-                        anchors.right: parent.right
+                    Column {
+                        z: 100
+                        width: parent.width * 1.3
+                        spacing : 4
                         anchors.bottom: parent.bottom
 
-                        text: Qt.formatDateTime(new Date(), "dddd, dd MMMM yyyy HH:mm AP")
+                        Text {
+                            id: lblSession
+                            width: parent.width
+                            text: textConstants.session
+                            wrapMode: TextEdit.WordWrap
+                            font.bold: true
+                            font.pixelSize: 12
+                        }
 
-                        horizontalAlignment: Text.AlignRight
+                        ComboBox {
+                            id: session
+                            width: parent.width; height: 30
+                            font.pixelSize: 14
 
-                        color: "#0b678c"
-                        font.bold: true
-                        font.pixelSize: 12
+                            arrowIcon: "angle-down.png"
+
+                            model: sessionModel
+                            index: sessionModel.lastIndex
+
+                            KeyNavigation.backtab: password; KeyNavigation.tab: layoutBox
+                        }
                     }
 
-                    Menu {
-                        id: menu_session
-                        width: 200; height: 0
-                        anchors.top: buttonRow.bottom; anchors.left: buttonRow.left
+                    Column {
+                        z: 101
+                        width: parent.width * 0.7
+                        spacing : 4
+                        anchors.bottom: parent.bottom
 
-                        model: sessionModel
-                        index: sessionModel.lastIndex
+                        Text {
+                            id: lblLayout
+                            width: parent.width
+                            text: textConstants.layout
+                            wrapMode: TextEdit.WordWrap
+                            font.bold: true
+                            font.pixelSize: 12
+                        }
+
+                        LayoutBox {
+                            id: layoutBox
+                            width: parent.width; height: 30
+                            font.pixelSize: 14
+
+                            arrowIcon: "angle-down.png"
+
+                            KeyNavigation.backtab: session; KeyNavigation.tab: loginButton
+                        }
+                    }
+                }
+
+                Column {
+                    width: parent.width
+                    Text {
+                        id: errorMessage
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: textConstants.prompt
+                        font.pixelSize: 10
+                    }
+                }
+
+                Row {
+                    spacing: 4
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    property int btnWidth: Math.max(loginButton.implicitWidth,
+                                                    shutdownButton.implicitWidth,
+                                                    rebootButton.implicitWidth, 80) + 8
+                    Button {
+                        id: loginButton
+                        text: textConstants.login
+                        width: parent.btnWidth
+
+                        onClicked: sddm.login(squareButton.textUserValue, password.text, session.index)
+
+                        KeyNavigation.backtab: layoutBox; KeyNavigation.tab: shutdownButton
+                    }
+
+                    Button {
+                        id: shutdownButton
+                        text: textConstants.shutdown
+                        width: parent.btnWidth
+
+                        onClicked: sddm.powerOff()
+
+                        KeyNavigation.backtab: loginButton; KeyNavigation.tab: rebootButton
+                    }
+
+                    Button {
+                        id: rebootButton
+                        text: textConstants.reboot
+                        width: parent.btnWidth
+
+                        onClicked: sddm.reboot()
+
+                        KeyNavigation.backtab: shutdownButton; KeyNavigation.tab: squareButton
                     }
                 }
             }
         }
     }
 
-/*    Rectangle {
-        id: actionBar
-        anchors.top: parent.top;
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width; height: 40
-
-        Row {
-            anchors.left: parent.left
-            anchors.margins: 5
-            height: parent.height
-            spacing: 5
-
-            Text {
-                height: parent.height
-                anchors.verticalCenter: parent.verticalCenter
-
-                text: textConstants.session
-                font.pixelSize: 14
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            ComboBox {
-                id: session
-                width: 245
-                anchors.verticalCenter: parent.verticalCenter
-
-                arrowIcon: "angle-down.png"
-
-                model: sessionModel
-                index: sessionModel.lastIndex
-
-                font.pixelSize: 14
-
-                KeyNavigation.backtab: hibernate_button; KeyNavigation.tab: layoutBox
-            }
-
-            Text {
-                height: parent.height
-                anchors.verticalCenter: parent.verticalCenter
-
-                text: textConstants.layout
-                font.pixelSize: 14
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            LayoutBox {
-                id: layoutBox
-                width: 90
-                anchors.verticalCenter: parent.verticalCenter
-                font.pixelSize: 14
-
-                arrowIcon: "angle-down.png"
-
-                KeyNavigation.backtab: session; KeyNavigation.tab: user_entry
-            }
-        }
-    }
-*/
-
     Component.onCompleted: {
-        if (user_entry.text === "")
-            user_entry.focus = true
+        if (squareButton.textUserValue == "")
+            squareButton.focus = true
         else
-            pw_entry.focus = true
+            password.focus = true
     }
 }

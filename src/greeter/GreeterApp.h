@@ -24,6 +24,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QQuickView>
+#include <QSortFilterProxyModel>
 
 class QTranslator;
 
@@ -34,10 +35,8 @@ namespace SDDM {
     class SessionModel;
     class ScreenModel;
     class UserModel;
-    class AutoCompletion;
     class GreeterProxy;
     class KeyboardModel;
-
 
     class GreeterApp : public QGuiApplication
     {
@@ -64,11 +63,11 @@ namespace SDDM {
         ThemeConfig *m_themeConfig { nullptr };
         SessionModel *m_sessionModel { nullptr };
         UserModel *m_userModel { nullptr };
-        AutoCompletion *m_autoCompletion { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
+        QSortFilterProxyModel *m_sort_filterModel {nullptr};
 
-        QString userModelContext;
+
         void activatePrimary();
     };
 }

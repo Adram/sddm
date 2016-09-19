@@ -27,10 +27,11 @@
 #include "ThemeConfig.h"
 #include "ThemeMetadata.h"
 #include "UserModel.h"
-#include "AutoCompletion.h"
 #include "KeyboardModel.h"
 
 #include "MessageHandler.h"
+
+
 
 #include <QGuiApplication>
 #include <QQuickView>
@@ -60,6 +61,8 @@ namespace SDDM {
     GreeterApp *GreeterApp::self = nullptr;
 
     GreeterApp::GreeterApp(int &argc, char **argv) : QGuiApplication(argc, argv) {
+
+
         // point instance to this
         self = this;
 
@@ -111,17 +114,17 @@ namespace SDDM {
         // create models
 
         m_sessionModel = new SessionModel();
-        userModelContext = mainConfig.Theme.userModelClass.get();
-        if (QString::compare(userModelContext,QStringLiteral("userModel"), Qt::CaseSensitive)==0)
-            m_userModel = new UserModel();
-        else if (QString::compare(userModelContext,QStringLiteral("autoCompletion"), Qt::CaseSensitive)==0)
-            m_autoCompletion = new AutoCompletion();
-        else {
-            m_userModel = new UserModel();
-            qWarning()<<"(WW) invalid userModelClass value checked: please adjust your sddm.conf";
-        }
+        m_userModel = new UserModel();
         m_proxy = new GreeterProxy(socket);
         m_keyboard = new KeyboardModel();
+        m_sort_filterModel = new QSortFilterProxyModel();
+
+        m_sort_filterModel->setSourceModel(m_userModel);
+        m_sort_filterModel->setFilterRole(UserModel::NameRole);
+        m_sort_filterModel->setFilterRegExp(QStringLiteral("^"));
+        m_sort_filterModel->setSortRole(UserModel::NameRole);
+        m_sort_filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+        m_sort_filterModel->sort(Qt::AscendingOrder);
 
         if(!testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
@@ -153,6 +156,7 @@ namespace SDDM {
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {
+
         // create view
         QQuickView *view = new QQuickView();
         view->setScreen(screen);
@@ -202,16 +206,14 @@ namespace SDDM {
         // set context properties
         view->rootContext()->setContextProperty(QStringLiteral("sessionModel"), m_sessionModel);
         view->rootContext()->setContextProperty(QStringLiteral("screenModel"), screenModel);
-        if (QString::compare(userModelContext,QStringLiteral("userModel"), Qt::CaseSensitive)==0)
-            view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
-        else if (QString::compare(userModelContext,QStringLiteral("autoCompletion"), Qt::CaseSensitive)==0)
-            view->rootContext()->setContextProperty(QStringLiteral("usermodel"), m_autoCompletion);
-        else
-            view->rootContext()->setContextProperty(QStringLiteral("usermodel"), m_userModel);
+        view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
         view->rootContext()->setContextProperty(QStringLiteral("config"), *m_themeConfig);
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
         view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), QGuiApplication::primaryScreen() == screen);
+        view->rootContext()->setContextProperty(QStringLiteral("mySortModel"), m_sort_filterModel);
+
+
 
         // get theme main script
         QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
@@ -227,6 +229,7 @@ namespace SDDM {
 
         // set main script as source
         view->setSource(QUrl::fromLocalFile(mainScript));
+
 
         // show
         qDebug() << "Adding view for" << screen->name() << screen->geometry();
