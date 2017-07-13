@@ -99,14 +99,15 @@ FocusScope {
         border.color: main.border.color
         border.width: main.border.width
 
+        color: "transparent"
+    }
         Image {
             id: arrowIcon
-            anchors.fill: parent
+            anchors.fill: arrow
             clip: true
             smooth: true
             fillMode: Image.PreserveAspectFit
         }
-    }
 
     MouseArea {
         id: mouseArea

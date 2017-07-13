@@ -1,4 +1,4 @@
-set(THEMES elarun maldives autoComp)
+set(THEMES elarun maldives)
 
 foreach(THEME ${THEMES})
     # We assume that theme-specific translations are stored

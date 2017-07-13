@@ -212,6 +212,7 @@ namespace SDDM {
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
         view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), QGuiApplication::primaryScreen() == screen);
         view->rootContext()->setContextProperty(QStringLiteral("mySortModel"), m_sort_filterModel);
+        view->rootContext()->setContextProperty(QStringLiteral("applicationDirPath"), QGuiApplication::applicationDirPath());
 
 
 

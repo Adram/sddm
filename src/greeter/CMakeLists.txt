@@ -18,6 +18,7 @@ set(GREETER_SOURCES
     XcbKeyboardBackend.cpp
 )
 
+
 configure_file("theme/Main.qml"                  "theme/Main.qml")
 configure_file("theme.qrc"                       "theme.qrc")
 
