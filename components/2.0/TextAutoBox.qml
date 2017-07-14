@@ -16,100 +16,58 @@ FocusScope {
     z:200
 
     Component {
-        id: contactsDelegateT
+        id: listViewItem
 
         Rectangle {
             id: wrapper
             width: listV_user.height - 8
             height: listV_user.height/5
-            property string prova_name: ListView.isCurrentItem ? contactInfo.text : "prova"
-            property alias testo_input_cam: password_text.testo_input_cambiato
+            property string prova_name: ListView.isCurrentItem ? contactInfo.text : ""
+            property alias testo_input_cam: realNameField.testo_input_cambiato
             property bool mouse_click
-            color: (index % 2)? "white": "#f5f5f5"
+            color: (index % 2)? "#f5f5f5" : "white"
 
-            Text {
-                id: contactInfo
-                anchors {
-                    left: parent.left; leftMargin: 2
-                    right: parent.right; rightMargin: 2
-                    top: parent.top; topMargin: 2
-                }
-
-                text: name
-                font { pixelSize: 14; bold: true }
-
-            }
+            focus: false
 
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    console.log("MouseArea - indice: "+index)
                     listV_user.currentIndex = index
                     item.DelegateModel.inSelected = !item.DelegateModel.inSelected
-                    password_text.focus = true
-                    password_text.enabled = true
+                    realNameField.focus = true
+                    realNameField.enabled = true
                     scope.focus = true
                     wrapper.mouse_click = true
                     text_name_cambiato_da_text = true
-                    text_name.text = text_under.text
+                    text_name.text = completion.text
                 }
             }
 
-            focus: false
-            onFocusChanged: {
-                console.log("FocusScope - FocusChanged! - Current: "+listV_user.currentIndex+" Select: "+index)
-            }
+            Column {
 
-            onActiveFocusChanged: {
-                console.log("FocusScope - ActiveFocusChaged!! - Current: "+listV_user.currentIndex+" Select: "+index)
-            }
+                anchors {
+                    left: parent.left; leftMargin: 8
+                    right: parent.right; rightMargin: 8
+                    verticalCenter: parent.verticalCenter
+                }
+                Text {
+                    id: contactInfo
 
-            TextInput {
-                anchors.top: parent.top
-                anchors.topMargin: 20
-                width: 200
-                id: password_text
-                focus: true
-                font { pixelSize: 14 }
-                text: "listV_user password"
-                color: wrapper.ListView.isCurrentItem ? "red" : "black"
-                property bool testo_input_cambiato: false
-                onTextChanged: {
-                    textUserPassword = text
+                    text: name
+                    font { pixelSize: 16; bold: true; italic: false}
+                    color: wrapper.ListView.isCurrentItem ? "black" : "gray"
                 }
 
-                onFocusChanged: {
-                    console.log("TextInput! - FocusChanged! - Current: "+listV_user.currentIndex+" Select: "+index)
-                }
-
-                onActiveFocusOnPressChanged: {
-                    console.log("TextInput - ActiveFocusOnPressChanged! - Current: "+listV_user.currentIndex+" Select: "+index)
-                }
-
-                onActiveFocusChanged: {
-                    console.log("TextInput - ActiveFocusChanged! - Current: "+listV_user.currentIndex+" Select: "+index)
-                    console.log("TextInput - ActiveFocusChanged! - ActiveFocus: "+activeFocus)
-                    if(activeFocus) {
-
-                        indice_cambiato = true
-                        listV_user.currentIndex = index
-                        console.log("TextInput - ActiveFocusChanged! - After Index Changed ActiveFocus: "+activeFocus)
-                        forceActiveFocus()
-                        text_name_cambiato_da_text = true
-                        text_name.text = text_under.text
-                    }
-                }
-
-                Keys.onPressed: {
-                    if((event.key == Qt.Key_Enter) || (event.key == Qt.Key_Return)) {
-                        console.log("Dentro il ListView! - Premuto tasto Enter / Return")
-                        // event.accepted = true;
-                        // prova_password = text
-                        // textUserPassword = text
-                    }
+                Text {
+                    width: 200
+                    id: realNameField
+                    focus: true
+                    text: realName
+                    color: wrapper.ListView.isCurrentItem ? "gray" : "black"
+                    property bool testo_input_cambiato: false
                 }
             }
-            // }
+
         }
     }
 
@@ -132,14 +90,14 @@ FocusScope {
             clip: true
 
             model: mySortModel
-            delegate: contactsDelegateT
+            delegate: listViewItem
             spacing: 0
 
             onCurrentItemChanged: {
                 if (currentItem) {
-                    text_under.text = currentItem.prova_name
+                    completion.text = currentItem.prova_name
                     currentItem.testo_input_cam = true
-                    // errore currentItem.password_text.testo_input_cambiato = true
+                    // errore currentItem.realNameField.testo_input_cambiato = true
                 }
             }
             onCurrentIndexChanged: {
@@ -147,8 +105,7 @@ FocusScope {
                 stato_indice_scroll = true
                 stato_indice_scroll = false
                 if (currentIndex == -1) {
-                    text_under.text = ""
-                    // text_under_index.text = ""
+                    completion.text = ""
                 }
                 else {
                     console.log("ListView - CurrentIndexChanged! - Before Current: "+currentIndex)
@@ -178,7 +135,6 @@ FocusScope {
 
         Column {
             id: inputFields
-            //color:"transparent"
             width: parent.width - listV_user.width - 2 * hMargin - sbHeight
             height: listV_user.height
 
@@ -220,7 +176,7 @@ FocusScope {
                 height: listV_user.height/10
 
                 Text {
-                    id: text_under
+                    id: completion
 
                     anchors.left: parent.left
                     anchors.leftMargin:sbHeight
@@ -228,8 +184,6 @@ FocusScope {
 
                     color: "#c7c1c1"
                     clip: true
-
-                    //text: "inserisci il nome utente"
                 }
 
                 TextInput {
@@ -242,8 +196,8 @@ FocusScope {
                     clip: true
                     property bool changedText: false
 
-
                     focus: true
+                    KeyNavigation.tab: password
 
                     onTextChanged: {
                         if(!text_name_cambiato_da_text) {
@@ -261,14 +215,18 @@ FocusScope {
 
                     Keys.onPressed: {
                         changedText = false
+                        if(event.key == Qt.Key_Tab) {
+                            text_name.text=completion.text
+                        }
+
                         if(event.key == Qt.Key_Right) {
                             if ((listV_user.currentIndex != -1) &&
-                                    (((text != text_under.text) && (text != "")) ||
+                                    (((text != completion.text) && (text != "")) ||
                                      (text == "")
                                      )
                                     ) {
                                 event.accepted = true;
-                                text = text_under.text
+                                text = completion.text
                             }
                         }
                         if(event.key == Qt.Key_Up) {
@@ -282,6 +240,7 @@ FocusScope {
                     }
                 }
             }
+
             Rectangle {
                 id: passwordLabel
                 width: parent.width - hMargin
