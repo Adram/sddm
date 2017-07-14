@@ -43,28 +43,42 @@ FocusScope {
                 }
             }
 
-            Column {
-
+            Row {
                 anchors {
                     left: parent.left; leftMargin: 8
                     right: parent.right; rightMargin: 8
                     verticalCenter: parent.verticalCenter
                 }
-                Text {
-                    id: contactInfo
-
-                    text: name
-                    font { pixelSize: 16; bold: true; italic: false}
-                    color: wrapper.ListView.isCurrentItem ? "black" : "gray"
+                /**/
+                Image {
+                    id: userIcon
+                    fillMode: Image.PreserveAspectCrop
+                    source: applicationDirPath + "/../../../sddm/data/themes/maldives/images/" + name + ".png"
+                    onStatusChanged: {
+                        if (status == Image.Error && source != applicationDirPath + "/../../../sddm/data/themes/maldives/images/user_icon.png")
+                            source = applicationDirPath + "/../../../sddm/data/themes/maldives/images/user_icon.png"
+                    }
                 }
+                /**/
 
-                Text {
-                    width: 200
-                    id: realNameField
-                    focus: true
-                    text: realName
-                    color: wrapper.ListView.isCurrentItem ? "gray" : "black"
-                    property bool testo_input_cambiato: false
+                Column {
+
+                    Text {
+                        id: contactInfo
+
+                        text: name
+                        font { pixelSize: 16; bold: true; italic: false}
+                        color: wrapper.ListView.isCurrentItem ? "black" : "gray"
+                    }
+
+                    Text {
+                        width: 200
+                        id: realNameField
+                        focus: true
+                        text: realName
+                        color: wrapper.ListView.isCurrentItem ? "gray" : "black"
+                        property bool testo_input_cambiato: false
+                    }
                 }
             }
 
