@@ -5,8 +5,8 @@ FocusScope {
 
     property string textUserValue
     property string textUserPassword
-    property bool indice_cambiato: false
-    property bool text_name_cambiato_da_text: false
+    property bool indexIsNew: false
+    property bool unameSelected: false
     property int vMargin: 35
     property int hMargin: 30
     property int sbHeight: 8
@@ -22,8 +22,7 @@ FocusScope {
             id: wrapper
             width: listV_user.height - 8
             height: listV_user.height/5
-            property string prova_name: ListView.isCurrentItem ? contactInfo.text : ""
-            property alias testo_input_cam: realNameField.testo_input_cambiato
+            property string tmpUsername: ListView.isCurrentItem ? contactInfo.text : ""
             property bool mouse_click
             color: (index % 2)? "#f5f5f5" : "white"
 
@@ -34,12 +33,11 @@ FocusScope {
                 onClicked: {
                     listV_user.currentIndex = index
                     item.DelegateModel.inSelected = !item.DelegateModel.inSelected
-                    realNameField.focus = true
-                    realNameField.enabled = true
+                    contactInfo.focus = true
                     scope.focus = true
                     wrapper.mouse_click = true
-                    text_name_cambiato_da_text = true
-                    text_name.text = completion.text
+                    unameSelected = true
+                    username.text = completion.text
                 }
             }
 
@@ -63,9 +61,11 @@ FocusScope {
 
                 Column {
 
+
                     Text {
                         id: contactInfo
 
+                        focus: true
                         text: name
                         font { pixelSize: 16; bold: true; italic: false}
                         color: wrapper.ListView.isCurrentItem ? "black" : "gray"
@@ -74,10 +74,8 @@ FocusScope {
                     Text {
                         width: 200
                         id: realNameField
-                        focus: true
                         text: realName
                         color: wrapper.ListView.isCurrentItem ? "gray" : "black"
-                        property bool testo_input_cambiato: false
                     }
                 }
             }
@@ -109,9 +107,7 @@ FocusScope {
 
             onCurrentItemChanged: {
                 if (currentItem) {
-                    completion.text = currentItem.prova_name
-                    currentItem.testo_input_cam = true
-                    // errore currentItem.realNameField.testo_input_cambiato = true
+                    completion.text = currentItem.tmpUsername
                 }
             }
             onCurrentIndexChanged: {
@@ -124,15 +120,15 @@ FocusScope {
                 else {
                     console.log("ListView - CurrentIndexChanged! - Before Current: "+currentIndex)
 
-                    if(text_name.changedText) {
-                        text_name.changedText = false
+                    if(username.changedText) {
+                        username.changedText = false
                         currentIndex = 0
                     }
                     console.log("ListView - CurrentIndexChanged! - After Current: "+currentIndex)
                 }
-                if (indice_cambiato) {
+                if (indexIsNew) {
                     console.log("ListView - CurrentIndexChanged! - Cambiato da TextInput")
-                    indice_cambiato = false
+                    indexIsNew = false
                 }
 
             }
@@ -201,7 +197,7 @@ FocusScope {
                 }
 
                 TextInput {
-                    id: text_name
+                    id: username
 
                     anchors.left: parent.left
                     anchors.leftMargin:sbHeight
@@ -214,13 +210,13 @@ FocusScope {
                     KeyNavigation.tab: password
 
                     onTextChanged: {
-                        if(!text_name_cambiato_da_text) {
+                        if(!unameSelected) {
 
                             mySortModel.setFilterRegExp("^"+text)
                             changedText = true
                         }
                         else {
-                            text_name_cambiato_da_text = false
+                            unameSelected = false
                         }
 
                         textUserValue = text
@@ -230,7 +226,7 @@ FocusScope {
                     Keys.onPressed: {
                         changedText = false
                         if(event.key == Qt.Key_Tab) {
-                            text_name.text=completion.text
+                            username.text=completion.text
                         }
 
                         if(event.key == Qt.Key_Right) {
@@ -278,7 +274,7 @@ FocusScope {
                 height: listV_user.height/10
                 //font.pixelSize: 14
 
-                KeyNavigation.backtab: text_name; KeyNavigation.tab: loginButton
+                KeyNavigation.backtab: username; KeyNavigation.tab: loginButton
 
                 Keys.onPressed: {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
@@ -367,7 +363,7 @@ FocusScope {
 
             onClicked: sddm.login(squareButton.textUserValue, password.text, session.index)
 
-            KeyNavigation.backtab: text_name; KeyNavigation.tab: shutdownButton
+            KeyNavigation.backtab: username; KeyNavigation.tab: shutdownButton
         }
 
         Button {
@@ -387,7 +383,7 @@ FocusScope {
 
             onClicked: sddm.reboot()
 
-            KeyNavigation.backtab: shutdownButton; KeyNavigation.tab: text_name
+            KeyNavigation.backtab: shutdownButton; KeyNavigation.tab: username
         }
     }
 }
