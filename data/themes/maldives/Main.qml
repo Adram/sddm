@@ -96,7 +96,6 @@ Rectangle {
 
         Rectangle {
             id: rectangle
-            //border.color:"black"
             property int cbHeight: 100
             width: Math.max(600, mainRow.implicitWidth + 50)
             height: 2 * cbHeight + width * 2 / 3
@@ -104,8 +103,7 @@ Rectangle {
             TextAutoBox {
                 id: squareButton
                 property int cbHeight: parent.cbHeight
-                //KeyNavigation.backtab: rebootButton; KeyNavigation.tab: password
-
+                property string localPath: Qt.resolvedUrl("./")
             }
             Image {
                 id: image
@@ -123,13 +121,9 @@ Rectangle {
 
                     spacing: 12
                     Column {
-                        //width: parent.width
                         anchors.fill: parent
                         width: 2*leftRectangle.implicitWidth
-                        //                    height: Math.max(320, mainColumn.implicitHeight + 350)
-                        height: 350   // , mainColumn.implicitHeight + 350)
-                        //spacing: 4
-
+                        height: 350
                     }
                 }
            }

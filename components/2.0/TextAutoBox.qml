@@ -51,10 +51,10 @@ FocusScope {
                 Image {
                     id: userIcon
                     fillMode: Image.PreserveAspectCrop
-                    source: applicationDirPath + "/../../../sddm/data/themes/maldives/images/" + name + ".png"
+                    source: localPath + "images/" + name + ".png"
                     onStatusChanged: {
-                        if (status == Image.Error && source != applicationDirPath + "/../../../sddm/data/themes/maldives/images/user_icon.png")
-                            source = applicationDirPath + "/../../../sddm/data/themes/maldives/images/user_icon.png"
+                        if (status == Image.Error && source != localPath + "images/user_icon.png")
+                            source = localPath + "images/user_icon.png"
                     }
                 }
                 /**/
@@ -158,7 +158,7 @@ FocusScope {
                     id: qtIcon
                     width:iconRectangle.width
                     height: iconRectangle.height
-                    source: applicationDirPath + "/../../../sddm/data/themes/maldives/qt.gif"
+                    source: localPath + "qt.gif"
                 }
             }
 
