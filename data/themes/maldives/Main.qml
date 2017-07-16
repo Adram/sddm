@@ -103,7 +103,8 @@ Rectangle {
             TextAutoBox {
                 id: squareButton
                 property int cbHeight: parent.cbHeight
-                property string localPath: Qt.resolvedUrl("./")
+                property bool loadIcons:true
+                property string localPath: loadIcons ? Qt.resolvedUrl("./") : ""
             }
             Image {
                 id: image
