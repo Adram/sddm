@@ -10,10 +10,10 @@ FocusScope {
     property int vMargin: 35
     property int hMargin: 30
     property int sbHeight: 8
+    z: 200
 
     width: parent.width
     height: parent.height
-    z:200
 
     Component {
         id: listViewItem
@@ -25,7 +25,6 @@ FocusScope {
             property string tmpUsername: ListView.isCurrentItem ? contactInfo.text : ""
             property bool mouse_click
             color: (index % 2)? "#f5f5f5" : "white"
-
             focus: false
 
             MouseArea {
@@ -40,7 +39,6 @@ FocusScope {
                     username.text = completion.text
                 }
             }
-
             Row {
                 anchors {
                     left: parent.left; leftMargin: 8
@@ -58,19 +56,14 @@ FocusScope {
                         }
                     }
                 }
-
                 Column {
-
-
                     Text {
                         id: contactInfo
-
                         focus: true
                         text: name
                         font { pixelSize: 16; bold: true; italic: false}
                         color: wrapper.ListView.isCurrentItem ? "black" : "gray"
                     }
-
                     Text {
                         width: 200
                         id: realNameField
@@ -79,10 +72,8 @@ FocusScope {
                     }
                 }
             }
-
         }
     }
-
     Row {
         id: listRow
         anchors {
@@ -94,49 +85,39 @@ FocusScope {
 
         ListView {
             id: listV_user
-            property bool stato_indice_scroll: false
+            property bool scrollIndexStatus: false
             width: root.width / 3;
             height: image.height - 2 * vMargin - cbHeight
             maximumFlickVelocity: 1500
-
             clip: true
 
             model: mySortModel
             delegate: listViewItem
             spacing: 0
-
             onCurrentItemChanged: {
                 if (currentItem) {
                     completion.text = currentItem.tmpUsername
                 }
             }
             onCurrentIndexChanged: {
-                console.log("ListView - CurrentIndexChanged! - Current: "+currentIndex+" ActiveFocus: "+activeFocus)
-                stato_indice_scroll = true
-                stato_indice_scroll = false
+                scrollIndexStatus = true
+                scrollIndexStatus = false
                 if (currentIndex == -1) {
                     completion.text = ""
                 }
                 else {
-                    console.log("ListView - CurrentIndexChanged! - Before Current: "+currentIndex)
-
                     if(username.changedText) {
                         username.changedText = false
                         currentIndex = 0
                     }
-                    console.log("ListView - CurrentIndexChanged! - After Current: "+currentIndex)
                 }
                 if (indexIsNew) {
-                    console.log("ListView - CurrentIndexChanged! - Cambiato da TextInput")
                     indexIsNew = false
                 }
-
             }
         }
-
         ScrollBar {
             id: scroll_listV_user
-
             orientation: Qt.Vertical
             height: listV_user.height;
             width: sbHeight
@@ -153,7 +134,6 @@ FocusScope {
                 width:parent.width
                 height: width / 2
                 color: "transparent"
-
                 Image {
                     id: qtIcon
                     width:iconRectangle.width
@@ -161,13 +141,11 @@ FocusScope {
                     source: localPath + "qt.gif"
                 }
             }
-
             Rectangle {
                 id: userNameLabel
                 width: parent.width;
                 height: listV_user.height/10
                 color: "transparent"
-
                 Text {
                     id: userNameText
                     anchors.left: parent.left
@@ -179,56 +157,44 @@ FocusScope {
                     text: "Username"
                 }
             }
-
             Rectangle {
                 id: userNameInput
                 width: parent.width - hMargin
                 height: listV_user.height/10
-
                 Text {
                     id: completion
-
                     anchors.left: parent.left
                     anchors.leftMargin:sbHeight
                     anchors.verticalCenter: parent.verticalCenter
-
                     color: "#c7c1c1"
                     clip: true
                 }
-
                 TextInput {
                     id: username
-
                     anchors.left: parent.left
                     anchors.leftMargin:sbHeight
                     anchors.verticalCenter: parent.verticalCenter
-
                     clip: true
                     property bool changedText: false
-
                     focus: true
+
                     KeyNavigation.tab: password
 
                     onTextChanged: {
                         if(!unameSelected) {
-
                             mySortModel.setFilterRegExp("^"+text)
                             changedText = true
                         }
                         else {
                             unameSelected = false
                         }
-
                         textUserValue = text
-
                     }
-
                     Keys.onPressed: {
                         changedText = false
                         if(event.key == Qt.Key_Tab) {
                             username.text=completion.text
                         }
-
                         if(event.key == Qt.Key_Right) {
                             if ((listV_user.currentIndex != -1) &&
                                     (((text != completion.text) && (text != "")) ||
@@ -250,20 +216,16 @@ FocusScope {
                     }
                 }
             }
-
             Rectangle {
                 id: passwordLabel
                 width: parent.width - hMargin
                 height: listV_user.height/10
                 color: "transparent"
-
                 Text {
                     anchors.left: parent.left
                     anchors.leftMargin:sbHeight
                     anchors.verticalCenter: parent.verticalCenter
-
                     clip: true
-
                     font.bold: true
                     text: textConstants.password
                 }
@@ -272,10 +234,8 @@ FocusScope {
                 id: password
                 width: parent.width - hMargin
                 height: listV_user.height/10
-                //font.pixelSize: 14
 
                 KeyNavigation.backtab: username; KeyNavigation.tab: loginButton
-
                 Keys.onPressed: {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         sddm.login(squareButton.textUserValue, password.text, session.index)
@@ -291,9 +251,7 @@ FocusScope {
         anchors.top: listRow.bottom
         anchors.topMargin: cbHeight / 4
         anchors.left: listRow.left
-
         spacing: 4
-
         Column {
             id: sessionCombo
             Text {
@@ -303,42 +261,32 @@ FocusScope {
                 font.bold: true
                 font.pixelSize: 12
             }
-
             ComboBox {
                 id: session
                 property string arroColor: "transparent"
-
-                //font.pixelSize: 14
                 model: sessionModel
                 index: sessionModel.lastIndex
                 width: 200
-                height: controlBar.height
                 color: "transparent"
                 borderColor: "#ffd700"
-
                 arrowIcon: "angle-down.png"
                 KeyNavigation.backtab: password; KeyNavigation.tab: layoutBox
             }
         }
-
         Column {
-            id: layoutCol
-
+            id: layoutCombo
             Text {
                 id: lblLayout
+                width: parent.width
                 text: textConstants.layout
                 wrapMode: TextEdit.WordWrap
                 font.bold: true
                 font.pixelSize: 12
             }
-
             LayoutBox {
                 id: layoutBox
-                width: parent.width; height: 30
-                font.pixelSize: 14
                 color: "transparent"
                 borderColor: "#ffd700"
-
                 arrowIcon: "angle-down.png"
 
                 KeyNavigation.backtab: session; KeyNavigation.tab: loginButton
@@ -348,11 +296,10 @@ FocusScope {
 
     Row { id: rightBar
         anchors.top: listRow.bottom
-        anchors.topMargin: 39
+        anchors.topMargin: 43
         anchors.right: listRow.right
         anchors.rightMargin: 2 * (hMargin +sbHeight)
         spacing: 4
-        // anchors.horizontalCenter: parent.horizontalCenter
         property int btnWidth: Math.max(loginButton.implicitWidth,
                                         shutdownButton.implicitWidth,
                                         rebootButton.implicitWidth, 80) + 8
@@ -360,27 +307,25 @@ FocusScope {
             id: loginButton
             text: textConstants.login
             width: parent.btnWidth
-
+            color: "#a0a0a0"
             onClicked: sddm.login(squareButton.textUserValue, password.text, session.index)
 
             KeyNavigation.backtab: username; KeyNavigation.tab: shutdownButton
         }
-
         Button {
             id: shutdownButton
             text: textConstants.shutdown
             width: parent.btnWidth
-
+            color: "#a0a0a0"
             onClicked: sddm.powerOff()
 
             KeyNavigation.backtab: loginButton; KeyNavigation.tab: rebootButton
         }
-
         Button {
             id: rebootButton
             text: textConstants.reboot
             width: parent.btnWidth
-
+            color: "#a0a0a0"
             onClicked: sddm.reboot()
 
             KeyNavigation.backtab: shutdownButton; KeyNavigation.tab: username

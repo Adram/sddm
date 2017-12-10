@@ -1,6 +1,5 @@
 configure_file("${COMPONENTS_VERSION}/LayoutBox.qml" "${COMPONENTS_VERSION}/LayoutBox.qml")
-configure_file("${COMPONENTS_VERSION}/SquareButton.qml" "${COMPONENTS_VERSION}/SquareButton.qml")
-configure_file("${COMPONENTS_VERSION}/TextAutoBox.qml" "${COMPONENTS_VERSION}/TextAutoBox.qml")
+configure_file("${COMPONENTS_VERSION}/AutoCompletionBox.qml" "${COMPONENTS_VERSION}/AutoCompletionBox.qml")
 configure_file("${COMPONENTS_VERSION}/ScrollBar.qml" "${COMPONENTS_VERSION}/ScrollBar.qml")
 configure_file("common/qmldir" "common/qmldir")
 

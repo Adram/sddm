@@ -25,6 +25,8 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <errno.h>
+#include <string.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
@@ -43,18 +45,16 @@ namespace SDDM {
     bool UserSession::start() {
         QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
 
-        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QStringLiteral("greeter")) {
+        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
             QProcess::start(m_path);
-        } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
-            qDebug() << "Starting:" << mainConfig.X11.SessionCommand.get()
-                     << m_path;
-            QProcess::start(mainConfig.X11.SessionCommand.get(),
-                            QStringList() << m_path);
-        } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
-            qDebug() << "Starting:" << mainConfig.Wayland.SessionCommand.get()
-                     << m_path;
-            QProcess::start(mainConfig.Wayland.SessionCommand.get(),
-                            QStringList() << m_path);
+        } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
+            const QString cmd = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
+            qInfo() << "Starting:" << cmd;
+            QProcess::start(cmd);
+        } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
+            const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
+            qInfo() << "Starting:" << cmd;
+            QProcess::start(cmd);
         } else {
             qCritical() << "Unable to run user session: unknown session type";
         }
@@ -136,7 +136,7 @@ namespace SDDM {
         // determine stderr log file based on session type
         QString sessionLog = QStringLiteral("%1/%2")
                 .arg(QString::fromLocal8Bit(pw->pw_dir))
-                .arg(sessionType == QStringLiteral("x11")
+                .arg(sessionType == QLatin1String("x11")
                      ? mainConfig.X11.SessionLogFile.get()
                      : mainConfig.Wayland.SessionLogFile.get());
 
@@ -179,7 +179,7 @@ namespace SDDM {
             QDir().mkpath(finfo.absolutePath());
 
             QFile file_handler(file);
-            file_handler.open(QIODevice::WriteOnly);
+            file_handler.open(QIODevice::Append);
             file_handler.close();
 
             QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
@@ -198,4 +198,13 @@ namespace SDDM {
             pclose(fp);
         }
     }
+
+    void UserSession::setCachedProcessId(qint64 pid) {
+        m_cachedProcessId = pid;
+    }
+
+    qint64 UserSession::cachedProcessId() {
+        return m_cachedProcessId;
+    }
+
 }

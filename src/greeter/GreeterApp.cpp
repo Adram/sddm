@@ -31,9 +31,8 @@
 
 #include "MessageHandler.h"
 
-
-
 #include <QGuiApplication>
+#include <QQuickItem>
 #include <QQuickView>
 #include <QQmlContext>
 #include <QQmlEngine>
@@ -61,8 +60,6 @@ namespace SDDM {
     GreeterApp *GreeterApp::self = nullptr;
 
     GreeterApp::GreeterApp(int &argc, char **argv) : QGuiApplication(argc, argv) {
-
-
         // point instance to this
         self = this;
 
@@ -75,8 +72,10 @@ namespace SDDM {
         // get socket name
         QString socket = parameter(arguments(), QStringLiteral("--socket"), QString());
 
-        // get theme path
+        // get theme path (fallback to internal theme)
         m_themePath = parameter(arguments(), QStringLiteral("--theme"), QString());
+        if (m_themePath.isEmpty())
+            m_themePath = QLatin1String("qrc:/theme");
 
         // read theme metadata
         m_metadata = new ThemeMetadata(QStringLiteral("%1/metadata.desktop").arg(m_themePath));
@@ -103,22 +102,14 @@ namespace SDDM {
         if (m_themeConfig->contains(QStringLiteral("iconTheme")))
             QIcon::setThemeName(m_themeConfig->value(QStringLiteral("iconTheme")).toString());
 
-        // set cursor theme according to greeter theme
-        if (m_themeConfig->contains(QStringLiteral("cursorTheme")))
-            qputenv("XCURSOR_THEME", m_themeConfig->value(QStringLiteral("cursorTheme")).toString().toUtf8());
-
-        // set platform theme
-        if (m_themeConfig->contains(QStringLiteral("platformTheme")))
-            qputenv("QT_QPA_PLATFORMTHEME", m_themeConfig->value(QStringLiteral("platformTheme")).toString().toUtf8());
-
         // create models
 
         m_sessionModel = new SessionModel();
         m_userModel = new UserModel();
         m_proxy = new GreeterProxy(socket);
         m_keyboard = new KeyboardModel();
-        m_sort_filterModel = new QSortFilterProxyModel();
 
+        m_sort_filterModel = new QSortFilterProxyModel();
         m_sort_filterModel->setSourceModel(m_userModel);
         m_sort_filterModel->setFilterRole(UserModel::NameRole);
         m_sort_filterModel->setFilterRegExp(QStringLiteral("^"));
@@ -148,15 +139,12 @@ namespace SDDM {
 
         // handle screens
         connect(this, &GreeterApp::screenAdded, this, &GreeterApp::addViewForScreen);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
         connect(this, &GreeterApp::primaryScreenChanged, this, [this](QScreen *) {
             activatePrimary();
         });
-#endif
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {
-
         // create view
         QQuickView *view = new QQuickView();
         view->setScreen(screen);
@@ -169,23 +157,14 @@ namespace SDDM {
         // need to be careful here since Qt will move the view to
         // another screen before this signal is emitted so we
         // pass a pointer to the view to our slot
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         connect(this, &GreeterApp::screenRemoved, this, [view, this](QScreen *) {
             removeViewForScreen(view);
         });
-#else
-        connect(view, &QQuickView::screenChanged, this, [view, this](QScreen *screen) {
-            if (screen == Q_NULLPTR)
-                removeViewForScreen(view);
-        });
-#endif
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         // always resize when the screen geometry changes
         connect(screen, &QScreen::geometryChanged, this, [view](const QRect &r) {
             view->setGeometry(r);
         });
-#endif
 
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
@@ -211,26 +190,41 @@ namespace SDDM {
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
         view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), QGuiApplication::primaryScreen() == screen);
+        view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), QString());
         view->rootContext()->setContextProperty(QStringLiteral("mySortModel"), m_sort_filterModel);
         view->rootContext()->setContextProperty(QStringLiteral("applicationDirPath"), QGuiApplication::applicationDirPath());
 
-
-
         // get theme main script
         QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
+        QUrl mainScriptUrl;
+        if (m_themePath.startsWith(QLatin1String("qrc:/")))
+            mainScriptUrl = QUrl(mainScript);
+        else
+            mainScriptUrl = QUrl::fromLocalFile(mainScript);
 
         // load theme from resources when an error has occurred
         connect(view, &QQuickView::statusChanged, this, [view](QQuickView::Status status) {
             if (status != QQuickView::Error)
                 return;
-            Q_FOREACH(const QQmlError &e, view->errors())
+
+            QString errors;
+            Q_FOREACH(const QQmlError &e, view->errors()) {
                 qWarning() << e;
+                errors += QLatin1String("\n") + e.toString();
+            }
+
+            qWarning() << "Fallback to embedded theme";
+            view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), errors);
             view->setSource(QUrl(QStringLiteral("qrc:/theme/Main.qml")));
         });
 
         // set main script as source
-        view->setSource(QUrl::fromLocalFile(mainScript));
+        qInfo("Loading %s...", qPrintable(mainScriptUrl.toString()));
+        view->setSource(mainScriptUrl);
 
+        // set default cursor
+        QCursor cursor(Qt::ArrowCursor);
+        view->rootObject()->setCursor(cursor);
 
         // show
         qDebug() << "Adding view for" << screen->name() << screen->geometry();
@@ -245,13 +239,6 @@ namespace SDDM {
         // screen is gone, remove the window
         m_views.removeOne(view);
         view->deleteLater();
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-        // starting from Qt 5.6 we are notified when the primary screen is changed
-        // and we request activation for the view when we get the signal, with
-        // older version we iterate the views and request activation
-        activatePrimary();
-#endif
     }
 
     void GreeterApp::activatePrimary() {
@@ -268,6 +255,19 @@ namespace SDDM {
 int main(int argc, char **argv) {
     // install message handler
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
+
+    // HiDPI
+    bool hiDpiEnabled = false;
+    if (QGuiApplication::platformName() == QLatin1String("xcb"))
+        hiDpiEnabled = SDDM::mainConfig.X11.EnableHiDPI.get();
+    else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland")))
+        hiDpiEnabled = SDDM::mainConfig.Wayland.EnableHiDPI.get();
+    if (hiDpiEnabled) {
+        qDebug() << "High-DPI autoscaling Enabled";
+        QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    } else {
+        qDebug() << "High-DPI autoscaling not Enabled";
+    }
 
     QStringList arguments;
 

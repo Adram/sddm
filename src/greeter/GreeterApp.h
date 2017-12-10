@@ -38,6 +38,7 @@ namespace SDDM {
     class GreeterProxy;
     class KeyboardModel;
 
+
     class GreeterApp : public QGuiApplication
     {
         Q_OBJECT
@@ -66,7 +67,6 @@ namespace SDDM {
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
         QSortFilterProxyModel *m_sort_filterModel {nullptr};
-
 
         void activatePrimary();
     };

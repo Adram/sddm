@@ -1,6 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2014 David Edmundson <davidedmundson@kde.org>
+* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -20,13 +21,28 @@
 
 #include "ThemeConfig.h"
 
+#include <QDebug>
 #include <QSettings>
 #include <QStringList>
 
 namespace SDDM {
     ThemeConfig::ThemeConfig(const QString &path) {
+        setTo(path);
+    }
+
+    void ThemeConfig::setTo(const QString &path) {
+        clear();
+
+        qDebug() << "Loading theme configuration from" << path;
+
         QSettings settings(path, QSettings::IniFormat);
         QSettings userSettings(path + QStringLiteral(".user"), QSettings::IniFormat);
+
+        // Support non-latin strings in background picture path
+        // Warning: The codec must be set immediately after creating the QSettings object,
+        // before accessing any data.
+        settings.setIniCodec("UTF-8");
+        userSettings.setIniCodec("UTF-8");
 
         // read default keys
         for (const QString &key: settings.allKeys()) {

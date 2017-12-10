@@ -52,7 +52,7 @@ namespace SDDM {
 
     UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
         const QString facesDir = mainConfig.Theme.FacesDir.get();
-        const QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
+        const QString defaultFace = QStringLiteral("file://%1/.face.icon").arg(facesDir);
 
         struct passwd *current_pw;
         while ((current_pw = getpwent()) != nullptr) {
@@ -70,6 +70,13 @@ namespace SDDM {
 
             // skip entries with shells in the hide shells list
             if (mainConfig.Users.HideShells.get().contains(QString::fromLocal8Bit(current_pw->pw_shell)))
+                continue;
+
+            // skip duplicates
+            // Note: getpwent() makes no attempt to suppress duplicate information
+            // if multiple sources are specified in nsswitch.conf(5).
+            if (d->users.cend()
+                != std::find_if(d->users.cbegin(), d->users.cend(), [current_pw](const UserPtr & u) { return u->uid == current_pw->pw_uid; }))
                 continue;
 
             // create user
@@ -109,11 +116,14 @@ namespace SDDM {
             if (avatarsEnabled) {
                 const QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
                 const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
+                QString accountsServiceFace = QStringLiteral("/var/lib/AccountsService/icons/%1").arg(user->name);
 
                 if (QFile::exists(userFace))
-                    user->icon = userFace;
+                    user->icon = QStringLiteral("file://%1").arg(userFace);
+                else if (QFile::exists(accountsServiceFace))
+                    user->icon = accountsServiceFace;
                 else if (QFile::exists(systemFace))
-                    user->icon = systemFace;
+                    user->icon = QStringLiteral("file://%1").arg(systemFace);
             }
         }
     }

@@ -14,7 +14,16 @@ sddm display manager configuration
 SYNOPSIS
 ========
 
-  @CONFIG_FILE@
+Configuration loads all files in the configuration directories followed by the configuration file in the order listed below with the latter having the most precedent. Changes should be made to the local configurations.
+
+**@SYSTEM_CONFIG_DIR@**
+	System configuration directory
+
+**@CONFIG_DIR@**
+	Local configuration directory
+
+**@CONFIG_FILE@**
+	Local configuration file for compatibility
 
 DESCRIPTION
 ===========
@@ -57,7 +66,8 @@ OPTIONS
 
 `Current=`
 	Name of the current theme.
-	Default value is "maui".
+	By default this setting is empty, meaning the embedded theme
+	will be used.
 
 `FacesDir=`
 	Path of the directory containing face files,
@@ -98,12 +108,14 @@ OPTIONS
 	Default value is "/usr/share/xsessions".
 
 `SessionCommand=`
-	Path of script to execute when starting the desktop session.
+	Path of script to execute when starting the user session. This script
+	receives the value of the "Exec" setting in the ".desktop" file of the selected
+	session and runs it.
 	Default value is "@SESSION_COMMAND@".
 
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
-        Default value is ".cache/xsession-errors".
+        Default value is ".local/share/sddm/xorg-session.log".
 
 `UserAuthFile=`
         Path to the Xauthority file, relative to the home directory.
@@ -123,6 +135,11 @@ OPTIONS
 	increase as new displays added.
 	Default value is @MINIMUM_VT@.
 
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
+
 [Wayland] section:
 
 `SessionDir=`
@@ -130,18 +147,25 @@ OPTIONS
 	Default value is "/usr/share/wayland-sessions".
 
 `SessionCommand=`
-	Path of script to execute when starting the desktop session.
+	Path of script to execute when starting the user session. This script
+	receives the value of the "Exec" setting in the ".desktop" file of the selected
+	session and run it.
 	Default value is "@WAYLAND_SESSION_COMMAND@".
 
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
-        Default value is ".cache/wayland-errors".
+        Default value is ".local/share/sddm/wayland-session.log".
+
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
 
 [Users] section:
 
 `DefaultPath=`
 	Default path to set after successfully logging in.
-	Default value is "/bin:/usr/bin:/usr/local/bin".
+	Default value is "/usr/local/bin:/usr/bin:/bin".
 
 `MinimumUid=`
 	Minimum user id of the users to be listed in the
