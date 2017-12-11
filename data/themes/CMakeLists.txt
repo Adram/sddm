@@ -1,4 +1,8 @@
-set(THEMES autocomp elarun maldives maya)
+# <<<<<<< HEAD
+set(THEMES autocomp elarun maldives maya pinkList)
+# =======
+# set(THEMES elarun maldives maya pinkList)
+# >>>>>>> pinkList
 
 foreach(THEME ${THEMES})
     # We assume that theme-specific translations are stored
@@ -7,6 +11,37 @@ foreach(THEME ${THEMES})
     file(GLOB TRANSLATION_SOURCES "${TRANSLATIONS_DIR}/*.ts")
 
     # start - AutoComp feature
+    if("${THEME}" STREQUAL "pinkList")
+        configure_file("${THEME}/LICENSE"                                 "${THEME}/LICENSE" COPYONLY)
+        configure_file("${THEME}/README"                                  "${THEME}/README" COPYONLY)
+        
+        configure_file("${THEME}/angle-down.png"                          "${THEME}/angle-down.png" COPYONLY)
+        configure_file("${THEME}/background.jpg"                          "${THEME}/background.jpg" COPYONLY)
+        
+        configure_file("${THEME}/pinkList.mp4"                            "${THEME}/pinkList.mp4" COPYONLY)
+        configure_file("${THEME}/listBox.png"                             "${THEME}/listBox.png" COPYONLY)
+
+        configure_file("${THEME}/qt.gif"                                  "${THEME}/qt.gif" COPYONLY)
+        
+        configure_file("${THEME}/images/albano.png"                       "${THEME}/images/albano.png" COPYONLY)
+        configure_file("${THEME}/images/alberta.png"                      "${THEME}/images/alberta.png" COPYONLY)
+        configure_file("${THEME}/images/albino.png"                       "${THEME}/images/albino.png" COPYONLY)
+        configure_file("${THEME}/images/background.png"                   "${THEME}/images/background.png" COPYONLY)
+        configure_file("${THEME}/images/lock.png"                         "${THEME}/images/lock.png" COPYONLY)
+        configure_file("${THEME}/images/login_active.png"                 "${THEME}/images/login_active.png" COPYONLY)
+        configure_file("${THEME}/images/login_normal.png"                 "${THEME}/images/login_normal.png" COPYONLY)
+        configure_file("${THEME}/images/Person-Male-Light-icon.png"       "${THEME}/images/Person-Male-Light-icon.png" COPYONLY)
+        configure_file("${THEME}/images/rectangle_overlay.png"            "${THEME}/images/rectangle_overlay.png" COPYONLY)
+        configure_file("${THEME}/images/rectangle.png"                    "${THEME}/images/rectangle.png" COPYONLY)
+        configure_file("${THEME}/images/session_normal.png"               "${THEME}/images/session_normal.png" COPYONLY)
+        configure_file("${THEME}/images/system_hibernate.png"             "${THEME}/images/system_hibernate.png" COPYONLY)
+        configure_file("${THEME}/images/system_reboot.png"                "${THEME}/images/system_reboot.png" COPYONLY)
+        configure_file("${THEME}/images/system_shutdown.png"              "${THEME}/images/system_shutdown.png" COPYONLY)
+        configure_file("${THEME}/images/system_suspend.png"               "${THEME}/images/system_suspend.png"  COPYONLY)
+        configure_file("${THEME}/images/system_switch_user.png"           "${THEME}/images/system_switch_user.png" COPYONLY)
+        configure_file("${THEME}/images/user_icon.png"                    "${THEME}/images/user_icon.png" COPYONLY)
+    endif()
+
     if("${THEME}" STREQUAL "autocomp")
         configure_file("${THEME}/angle-down.png"                          "${THEME}/angle-down.png" COPYONLY)
         configure_file("${THEME}/background.jpg"                          "${THEME}/background.jpg" COPYONLY)
@@ -77,7 +112,18 @@ foreach(THEME ${THEMES})
 
     qt5_add_translation(QM_FILES "${TRANSLATION_SOURCES}")
 
-    install(DIRECTORY "${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes" PATTERN "${THEME}/*.ts" EXCLUDE PATTERN "${THEME}/Main.qml" EXCLUDE PATTERN "${THEME}/metadata.desktop" EXCLUDE)
+# <<<<<<< HEAD
+#    install(DIRECTORY "${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes" PATTERN "${THEME}/*.ts" 
+#            EXCLUDE PATTERN "${THEME}/Main.qml" 
+#            EXCLUDE PATTERN "${THEME}/metadata.desktop" 
+#            EXCLUDE)
+# =======
+    install(DIRECTORY "${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes" PATTERN "${THEME}/*.ts"
+            EXCLUDE PATTERN "${THEME}/Main.qml"
+            EXCLUDE PATTERN "${THEME}/metadata.desktop"
+            EXCLUDE PATTERN "${THEME}/.gitattributes"
+            EXCLUDE)
+# >>>>>>> pinkList
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes")
 
     list(APPEND THEMES_QM_FILES ${QM_FILES})

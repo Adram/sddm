@@ -110,8 +110,6 @@ endif()
 set(COMPONENTS_VERSION 2.0)
 
 option(ENABLED_AUTO_COMPLETITION "Auto completition Option" OFF)
-
-
 # Uninstall target
 if ("${ECM_VERSION}" VERSION_LESS "1.7.0")
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"

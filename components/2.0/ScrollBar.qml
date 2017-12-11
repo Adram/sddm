@@ -92,8 +92,8 @@ Item {
 
     function stato_scroll ()
     {
-        if(scrollArea.stato_indice_scroll) {
-            scrollArea.stato_indice_scroll = false
+        if(scrollArea.scrollIndexStatus) {
+            scrollArea.scrollIndexStatus = false
             return true
         }
         else {
@@ -112,10 +112,9 @@ Item {
         width: container.orientation == Qt.Vertical ? container.width - 4 : size()
         height: container.orientation == Qt.Vertical ? size() : container.height - 4
     }
-
     states: State {
         name: "visible"
-        when: scrollArea.stato_indice_scroll || scrollArea.moving
+        when: scrollArea.scrollIndexStatus || scrollArea.moving
         //when: container.orientation == Qt.Vertical ?
         //          scrollArea.movingVertically :
         //          scrollArea.movingHorizontally

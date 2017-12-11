@@ -102,6 +102,7 @@ namespace SDDM {
         if (m_themeConfig->contains(QStringLiteral("iconTheme")))
             QIcon::setThemeName(m_themeConfig->value(QStringLiteral("iconTheme")).toString());
 
+// <<<<<<< HEAD
 #if AUTO_COMPLETITION==AUTO_ON
         // set cursor theme according to greeter theme
         if (m_themeConfig->contains(QStringLiteral("cursorTheme")))
@@ -111,6 +112,8 @@ namespace SDDM {
         if (m_themeConfig->contains(QStringLiteral("platformTheme")))
             qputenv("QT_QPA_PLATFORMTHEME", m_themeConfig->value(QStringLiteral("platformTheme")).toString().toUtf8());
 #endif
+// =======
+// >>>>>>> pinkList
         // create models
 
         m_sessionModel = new SessionModel();
@@ -126,6 +129,14 @@ namespace SDDM {
         m_sort_filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
         m_sort_filterModel->sort(Qt::AscendingOrder);
 #endif
+
+        m_sort_filterModel = new QSortFilterProxyModel();
+        m_sort_filterModel->setSourceModel(m_userModel);
+        m_sort_filterModel->setFilterRole(UserModel::NameRole);
+        m_sort_filterModel->setFilterRegExp(QStringLiteral("^"));
+        m_sort_filterModel->setSortRole(UserModel::NameRole);
+        m_sort_filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+        m_sort_filterModel->sort(Qt::AscendingOrder);
 
         if(!testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
@@ -173,6 +184,7 @@ namespace SDDM {
             removeViewForScreen(view);
         });
 
+// <<<<<<< HEAD
         // controllo versioni QT
         // controllo versioni QT
         // controllo versioni QT
@@ -180,6 +192,8 @@ namespace SDDM {
         // controllo versioni QT
         // controllo versioni QT
 
+// =======
+// >>>>>>> pinkList
         // always resize when the screen geometry changes
         connect(screen, &QScreen::geometryChanged, this, [view](const QRect &r) {
             view->setGeometry(r);
@@ -210,10 +224,15 @@ namespace SDDM {
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
         view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), QGuiApplication::primaryScreen() == screen);
         view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), QString());
+// <<<<<<< HEAD
 #if AUTO_COMPLETITION==AUTO_ON
         view->rootContext()->setContextProperty(QStringLiteral("mySortModel"), m_sort_filterModel);
         view->rootContext()->setContextProperty(QStringLiteral("applicationDirPath"), QGuiApplication::applicationDirPath());
 #endif
+// =======
+//        view->rootContext()->setContextProperty(QStringLiteral("mySortModel"), m_sort_filterModel);
+//        view->rootContext()->setContextProperty(QStringLiteral("applicationDirPath"), QGuiApplication::applicationDirPath());
+// >>>>>>> pinkList
 
         // get theme main script
         QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
@@ -260,6 +279,7 @@ namespace SDDM {
         // screen is gone, remove the window
         m_views.removeOne(view);
         view->deleteLater();
+// <<<<<<< HEAD
 
         // controllo versioni QT
         // controllo versioni QT
@@ -267,6 +287,8 @@ namespace SDDM {
         // controllo versioni QT
         // controllo versioni QT
         // controllo versioni QT
+// =======
+// >>>>>>> pinkList
     }
 
     void GreeterApp::activatePrimary() {
