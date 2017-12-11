@@ -45,4 +45,8 @@
 #define HALT_COMMAND "@HALT_COMMAND@"
 #define REBOOT_COMMAND "@REBOOT_COMMAND@"
 
+#define AUTO_OFF       0
+#define AUTO_ON        1
+#define AUTO_COMPLETITION           AUTO_@ENABLED_AUTO_COMPLETITION@
+
 #endif // SDDM_CONSTANTS_H

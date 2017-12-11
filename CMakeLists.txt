@@ -13,7 +13,7 @@ endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
-set(SDDM_VERSION_MINOR 16)
+set(SDDM_VERSION_MINOR 15)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
@@ -103,6 +103,9 @@ endif()
 
 # Set components version
 set(COMPONENTS_VERSION 2.0)
+
+option(ENABLED_AUTO_COMPLETITION "Auto completition Option" OFF)
+
 
 # Uninstall target
 if ("${ECM_VERSION}" VERSION_LESS "1.7.0")
@@ -228,6 +231,7 @@ add_subdirectory(data)
 add_subdirectory(services)
 add_subdirectory(src)
 add_subdirectory(test)
+
 
 # Display feature summary
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
