@@ -238,7 +238,7 @@ FocusScope {
                 KeyNavigation.backtab: username; KeyNavigation.tab: loginButton
                 Keys.onPressed: {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        sddm.login(squareButton.textUserValue, password.text, session.index)
+                        sddm.login(auBox.textUserValue, password.text, session.index)
                         event.accepted = true
                     }
                 }
@@ -308,7 +308,7 @@ FocusScope {
             text: textConstants.login
             width: parent.btnWidth
             color: "#a0a0a0"
-            onClicked: sddm.login(squareButton.textUserValue, password.text, session.index)
+            onClicked: sddm.login(auBox.textUserValue, password.text, session.index)
 
             KeyNavigation.backtab: username; KeyNavigation.tab: shutdownButton
         }
